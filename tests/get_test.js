@@ -1,4 +1,4 @@
-const { test, after, beforeEach } = require('node:test')
+const { test, after, beforeEach, describe } = require('node:test')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -56,6 +56,16 @@ test('no title or url returns 400', async () => {
     .post('/api/blogs')
     .send(helper.extraBlogNoUrl)
     .expect(400)
+})
+test('can remove blog by id', async () => {
+  const res = await api.get('/api/blogs')
+  const target = res.body[0].id
+  await api
+    .delete(`/api/blogs/${target}`)
+    .expect(204)
+  await api
+    .get('/api/blogs')
+    .expect((res) => res.body.length === 6)
 })
 
 after(async () => {
