@@ -5,12 +5,13 @@ const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
 const blogs = require('../tests/example_list')
+const helper = require('../tests/test_helpers')
 
 const api = supertest(app)
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  const blogObjects = blogs.map(b => new Blog(b))
+  const blogObjects = helper.initialBlogs.map(b => new Blog(b))
   const promiseArray = blogObjects.map(b => b.save())
   await Promise.all(promiseArray)
 })
@@ -26,15 +27,35 @@ test('returns six blogs', async () => {
 })
 test('identification field is called \'id\'', async () => {
   const res = await api.get('/api/blogs')
-  const sch = mongoose.Schema({
-    title: String,
-    author: String,
-    url: String,
-    likes: Number,
-    id: String
-  })
-  const mod = mongoose.model('Blog_validator', sch)
-  assert(res.body.every(b => mod.validate(b)))
+  assert(typeof res.body[0].id !== 'undefined')
+})
+test('can add a blog after which blog count is 7', async () => {
+  await api
+    .post('/api/blogs')
+    .send(helper.extraBlog)
+    .expect(201)
+    .expect((res) => res.body === helper.extraBlog) 
+  await api
+    .get('/api/blogs')
+    .expect((res) => res.body.length === 7)
+  
+})
+test('likes default to 0', async () => {
+  await api
+    .post('/api/blogs')
+    .send(helper.extraBlogNoLikes)
+    .expect(201)
+    .expect((res) => res.body === {...helper.extraBlogNoLikes, likes: 0})
+})
+test('no title or url returns 400', async () => {
+  await api
+    .post('/api/blogs')
+    .send(helper.extraBlogNoTitle)
+    .expect(400)
+  await api
+    .post('/api/blogs')
+    .send(helper.extraBlogNoUrl)
+    .expect(400)
 })
 
 after(async () => {

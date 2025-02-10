@@ -32,7 +32,7 @@ app.use(morgan(
 
 app.use('/api/blogs', blogsRouter)
 
-app.use(unknownEndpoint)
 app.use(errorHandler)
+app.use(unknownEndpoint)
 
 module.exports = app
