@@ -15,7 +15,6 @@ const errorHandler = (e, req, res, n) => {
   if (e.name === 'ValidationError') {
     return res.status(400).send({ error: e.message })
   }
-  n(e)
 }
 
 module.exports = { unknownEndpoint, errorHandler }

@@ -20,7 +20,7 @@ logger.info(`connecting to ${config.MONGODB_URI}`)
 
 mongoose
   .connect(config.MONGODB_URI)
-  .then(() => console.log('connected to mongoDB'))
+  .then(() => logger.info('connected to mongoDB'))
 
 app.use(cors())
 app.use(express.static('dist'))
@@ -28,7 +28,7 @@ app.use(express.json())
 app.use(morgan(
 `:method :url 
 :status :res[content-length] - :response-time ms
-:body`))
+:body`, { skip: () => process.env.NODE_ENV === 'test' } ))
 
 app.use('/api/blogs', blogsRouter)
 
