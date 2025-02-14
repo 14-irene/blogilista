@@ -4,8 +4,10 @@ const blogSchema = mongoose.Schema({
   title: { type: String, required: true }, 
   author: { type: String, required: true },
   url: { type: String, required: true },
-  likes: { type: Number, default: 0, required: false }
+  likes: { type: Number, default: 0, required: false },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 })
+
 blogSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id.toString()

@@ -15,6 +15,10 @@ const errorHandler = (e, req, res, n) => {
   if (e.name === 'ValidationError') {
     return res.status(400).send({ error: e.message })
   }
+  if (e.name === 'MongoServerError' && e.message.includes('E11000 duplicate key error')) {
+    return res.status(400).json({ error: 'expected `username` to be unique' })
+  }
+  n(e)
 }
 
 module.exports = { unknownEndpoint, errorHandler }

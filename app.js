@@ -5,6 +5,7 @@ const morgan = require('morgan')
 const app = express()
 const cors = require('cors')
 const blogsRouter = require('./controllers/blogs')
+const usersRouter = require('./controllers/users')
 const logger = require('./utils/logger')
 const { errorHandler, unknownEndpoint } = require('./utils/middlewares')
 const mongoose = require('mongoose')
@@ -31,6 +32,7 @@ app.use(morgan(
 :body`, { skip: () => process.env.NODE_ENV === 'test' } ))
 
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 
 app.use(errorHandler)
 app.use(unknownEndpoint)
