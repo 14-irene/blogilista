@@ -45,6 +45,40 @@ describe('when there is one initial user in db', () => {
     assert(usersAtEnd.length === usersAtStart.length)
   })
 })
+describe('when db is empty', async () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+  })
+  
+  test('creation fails with proper status code when username is too short or undefined', async () => {
+    const usersAtStart = await helpers.usersInDb()
+    const shortUsername = await api
+      .post('/api/users')
+      .send({ username: 'ab', password: 'salainen' })
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+    const undefinedUsername = await api
+      .post('/api/users')
+      .send({ name: 'test', password: 'salainen' })
+      .expect(400)
+      .expect( 'Content-Type', /application\/json/)
+    assert([shortUsername, undefinedUsername].every(u => u.body.error.includes('bad username')))
+  })
+  test('creation fails with proper status code when password is too short or undefined', async () => {
+    const usersAtStart = await helpers.usersInDb()
+    const shortPassword = await api
+      .post('/api/users')
+      .send({ username: 'user1', password: '12' })
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+    const undefinedPassword = await api
+      .post('/api/users')
+      .send({ username: 'user2' })
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+    assert([shortPassword, undefinedPassword].every(p => p.body.error.includes('bad password')))
+  })
+})
 
 after(async () => {
   await mongoose.connection.close()
