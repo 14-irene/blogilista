@@ -21,19 +21,14 @@ describe('when there is one initial user in db', () => {
 
   test('can create with unique username', async () => {
     const usersAtStart = await helpers.usersInDb()
-    const newUser = {
-      username: 'esimerkki',
-      name: 'Essi Esimerkki',
-      password: 'salainen'
-    }
     await api
       .post('/api/users')
-      .send(newUser)
+      .send(helpers.exampleUser)
       .expect('Content-Type', /application\/json/)
     const usersAtEnd = await helpers.usersInDb()
     assert(usersAtEnd.length === usersAtStart.length + 1)
     const usernames = usersAtEnd.map(u => u.username)
-    assert(usernames.includes(newUser.username))
+    assert(usernames.includes(helpers.exampleUser.username))
   })
   
   test('creation fails with proper status code and message if username is not unique', async () => {
@@ -41,13 +36,13 @@ describe('when there is one initial user in db', () => {
 
     const result = await api
       .post('/api/users')
-      .send(helpers.exampleUser)
+      .send(helpers.rootUser)
       .expect(400)
       .expect('Content-Type', /application\/json/)
     
     const usersAtEnd = await helpers.usersInDb()
     assert(result.body.error.includes('expected `username` to be unique'))
-    assert(usersAtEnd.length === usersAtStart.length + 1)
+    assert(usersAtEnd.length === usersAtStart.length)
   })
 })
 

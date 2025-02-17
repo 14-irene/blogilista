@@ -84,6 +84,11 @@ const exampleUser = {
   name: 'Essi Esimerkki',
   password: 'salainen'
 }
+const rootUser = {
+  username: 'root',
+  name: 'root',
+  password: 'sekret'
+}
 
 module.exports = { 
   initialBlogs, 
@@ -93,4 +98,5 @@ module.exports = {
   extraBlogNoUrl,
   blogsInDb,
   usersInDb,
-  exampleUser }
+  exampleUser,
+  rootUser }
