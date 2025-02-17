@@ -9,6 +9,13 @@ usersRouter.get('/', async (req, res) => {
 
 usersRouter.post('/', async (req, res) => {
   const { username, name, password } = req.body
+  if (username === 'undefined' || username.length < 3) { 
+    res.status(400).json({ error: 'bad username' })
+  } 
+  if (password === 'undefined' || password.length < 3) {
+    res.status(400).json({ error: 'bad password' })
+  } 
+
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(password, saltRounds)
   const user = new User({ username, name, passwordHash })
