@@ -3,12 +3,15 @@ const Blog = require('../models/blog')
 require('express-async-errors')
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1, id: 1 })
   response.json(blogs).end()
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
+  const blog = new Blog({
+    ...request.body, 
+    user: '67b2fb56d22fccf13bc35556' //id of root 
+  })
   const res = await blog.save()
   response.status(201).json(res).end()
 })
