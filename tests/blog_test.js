@@ -4,18 +4,23 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const blogs = require('../tests/example_list')
 const helper = require('../tests/test_helpers')
 
 const api = supertest(app)
-
+let token = ''
 
 describe('when there is initially some saved blogs', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
+    await User.deleteMany({})
+    await api.post('/api/users').send(helper.rootUser)
     const blogObjects = helper.initialBlogs.map(b => new Blog(b))
     const promiseArray = blogObjects.map(b => b.save())
     await Promise.all(promiseArray)
+    const res = await api.post('/api/login').send({ username: 'root', password: 'sekret' })
+    token = res.body.token
   })
 
   describe('getting all blogs', () => {
@@ -38,6 +43,7 @@ describe('when there is initially some saved blogs', () => {
     test('can add a blog after which blog count is 7', async () => {
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(helper.extraBlog)
         .expect(201)
         .expect((res) => res.body === helper.extraBlog) 
@@ -49,6 +55,7 @@ describe('when there is initially some saved blogs', () => {
     test('likes default to 0', async () => {
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(helper.extraBlogNoLikes)
         .expect(201)
         .expect((res) => assert(res.body.likes === 0))
