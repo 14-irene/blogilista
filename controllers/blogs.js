@@ -10,7 +10,7 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog({
     ...request.body, 
-    user: '67b2fb56d22fccf13bc35556' //id of root 
+    user: '67bc1698afa583891bf400b6' //id of root 
   })
   const res = await blog.save()
   response.status(201).json(res).end()
