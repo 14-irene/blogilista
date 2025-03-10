@@ -15,12 +15,13 @@ describe('when there is initially some saved blogs', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
     await User.deleteMany({})
-    await api.post('/api/users').send(helper.rootUser)
-    const blogObjects = helper.initialBlogs.map(b => new Blog(b))
-    const promiseArray = blogObjects.map(b => b.save())
-    await Promise.all(promiseArray)
+    const ret = await api.post('/api/users').send(helper.rootUser)
+    const user = ret.body
     const res = await api.post('/api/login').send({ username: 'root', password: 'sekret' })
     token = res.body.token
+    const blogObjects = helper.initialBlogs.map(b => new Blog({...b, user: user.id}))
+    const promiseArray = await blogObjects.map(b => b.save())
+    await Promise.all(promiseArray)
   })
 
   describe('getting all blogs', () => {
@@ -77,11 +78,20 @@ describe('when there is initially some saved blogs', () => {
     const target = r.body[0].id
     await api
       .delete(`/api/blogs/${target}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(204)
       .expect(() => assert(r.body.length - 1 === 5))
     await api
       .get('/api/blogs')
       .expect((res) => assert(res.body.length === 5))
+  })
+  test('fails when token is faulty', async () => {
+    const r = await api.get('/api/blogs')
+    const target = r.body[0].id
+    await api
+      .delete(`/api/blogs/${target}`)
+      .set('Authorization', `Bearer ${token}a`)
+      .expect(400)
   })
   test('can edit blog likes', async () => {
     const r = await api.get('/api/blogs')
@@ -89,7 +99,7 @@ describe('when there is initially some saved blogs', () => {
     const id = r.body[0].id
     await api
       .put(`/api/blogs/${id}`)
-      .send({...r.body[0], likes: 1})
+      .send({ likes: 1 })
       .expect(200)
       .expect((res) => assert(res.body.likes === 1))
   })
