@@ -8,7 +8,7 @@ const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 const logger = require('./utils/logger')
-const { errorHandler, unknownEndpoint } = require('./utils/middlewares')
+const { tokenExtractor, errorHandler, unknownEndpoint } = require('./utils/middlewares')
 const mongoose = require('mongoose')
 
 morgan.token('body', (req) => req.method === 'POST'
@@ -31,6 +31,8 @@ app.use(morgan(
 `:method :url 
 :status :res[content-length] - :response-time ms
 :body`, { skip: () => process.env.NODE_ENV === 'test' } ))
+
+app.use(tokenExtractor)
 
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
