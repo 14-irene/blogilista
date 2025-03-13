@@ -1,4 +1,7 @@
 const { info, error } = require('./logger')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+require('express-async-errors')
 
 const unknownEndpoint = (req, res) =>
   res.status(404).send({ error: 'unknown endpoint' })
@@ -19,7 +22,7 @@ const errorHandler = (e, req, res, n) => {
     return res.status(400).json({ error: 'expected `username` to be unique' })
   }
   else if (e.name === 'JsonWebTokenError') {
-    return res.status(400).json({ error: 'token midding or invalid' })
+    return res.status(400).json({ error: 'invalid or missing token' })
   }
   n(e)
 }
@@ -32,5 +35,13 @@ const tokenExtractor = (req, res, n) => {
   n() 
 }
 
-module.exports = { unknownEndpoint, errorHandler, tokenExtractor }
+const userExtractor = async (req, res, n) => {
+  if (req.token) {
+    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+    req.user = await User.findById(decodedToken.id)
+  }
+  n()
+}
+
+module.exports = { unknownEndpoint, errorHandler, tokenExtractor, userExtractor }
 

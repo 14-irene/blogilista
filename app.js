@@ -8,8 +8,11 @@ const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 const logger = require('./utils/logger')
-const { tokenExtractor, errorHandler, unknownEndpoint } = require('./utils/middlewares')
 const mongoose = require('mongoose')
+const { userExtractor,
+        tokenExtractor, 
+        errorHandler, 
+        unknownEndpoint } = require('./utils/middlewares')
 
 morgan.token('body', (req) => req.method === 'POST'
   ? JSON.stringify(req.body)
@@ -33,6 +36,7 @@ app.use(morgan(
 :body`, { skip: () => process.env.NODE_ENV === 'test' } ))
 
 app.use(tokenExtractor)
+app.use(userExtractor)
 
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)

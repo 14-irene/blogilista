@@ -64,10 +64,12 @@ describe('when there is initially some saved blogs', () => {
     test('no title or url returns 400', async () => {
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(helper.extraBlogNoTitle)
         .expect(400)
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(helper.extraBlogNoUrl)
         .expect(400)
     })
