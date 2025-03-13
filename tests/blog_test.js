@@ -73,6 +73,12 @@ describe('when there is initially some saved blogs', () => {
         .send(helper.extraBlogNoUrl)
         .expect(400)
     })
+    test('no authorization token returns 401', async () => {
+      await api
+        .post('/api/blogs')
+        .send(helper.extraBlog)
+        .expect(401)
+    })
   })
 
   test('can remove blog by id', async () => {
